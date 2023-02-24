@@ -1,27 +1,25 @@
 package flame
 
 import (
-	"fmt"
 	"net/http"
 )
 
 //HandlerFunc是路由映射的处理函数
-type HandlerFunc func(w http.ResponseWriter,req *http.Request)
+type HandlerFunc func(*Context)
 
 //Engine是所有请求的统一处理器，里面包含路由表
 type Engine struct {
-	router map[string]HandlerFunc
+	router *router
 }
 
 //初始化处理器
 func New()*Engine{
-	return &Engine{router:make(map[string]HandlerFunc)}
+	return &Engine{router:newRouter()}
 }
 
 //添加路由
 func(e *Engine)addRoute(method string,pattern string,handler HandlerFunc){
-	key:=method+"-"+pattern
-	e.router[key]=handler
+	e.router.addRoute(method,pattern,handler)
 }
 
 //GET方法
@@ -43,12 +41,8 @@ func(e *Engine)Run(addr string)(err error){
 //实现http.Handler------>http.ServeHTTP(ResponseWriter,*Request)
 //原始的http.HandleFunc只能处理一个路由映射，但是实现了ServeHTTP就拥有了统一的控制入口，可以添加一些处理逻辑，比如日志或者异常处理
 func(e *Engine)ServeHTTP(w http.ResponseWriter,req *http.Request){
-	key:=req.Method+"-"+req.URL.Path
-	if handler,ok:=e.router[key];ok{
-		handler(w,req)
-	}else{
-		fmt.Fprintf(w,"404 NOT FOUND")
-	}
+	c:=newContext(w,req)
+	e.router.handle(c)
 }
 
 
