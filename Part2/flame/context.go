@@ -14,11 +14,10 @@ type Context struct {
 	//起始对象
 	Writer http.ResponseWriter
 	Req *http.Request
-
 	//Request信息
 	Path string
 	Method string
-
+	Params map[string]string
 	//Response信息
 	StatusCode int
 }
@@ -54,6 +53,11 @@ func(c *Context)Status(code int){
 	c.Writer.WriteHeader(code)
 }
 
+//URL中的动态参数
+func(c *Context)Param(key string)string{
+	value,_:=c.Params[key]
+	return value
+}
 
 /*
 	常见响应类型
@@ -70,7 +74,6 @@ func(c *Context)Status(code int){
 func(c *Context)TEXT(code int,format string,value ...interface{}){
 	c.SetHeader("Content-Type","text/plain")
 	c.Status(code)
-	fmt.Println(value)
 	c.Writer.Write([]byte(fmt.Sprintf(format,value...)))
 }
 
