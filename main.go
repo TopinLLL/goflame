@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goflame/flame"
+	"goflame/Part4/flame"
 	"net/http"
 )
 
@@ -10,6 +10,13 @@ import (
 
 func main(){
 	r:=flame.New()
+	v1 := r.Group("/v1")
+	{
+		v1.GET("/", func(c *flame.Context) {
+			c.HTML(http.StatusOK,"<h1>hello go flame </h1>")
+		})
+	}
+
 	r.GET("/", func(c *flame.Context) {
 		c.HTML(http.StatusOK,"<h1>hello go flame </h1>")
 	})
@@ -30,5 +37,5 @@ func main(){
 	r.GET("/assets/*filepath", func(c *flame.Context) {
 		c.JSON(http.StatusOK, flame.H{"filepath": c.Param("filepath")})
 	})
-	r.Run(":9998")
+	r.Run(":9997")
 }
